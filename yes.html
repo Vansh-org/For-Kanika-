@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>She said yes 💕</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=Inter:wght@300;400;500&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #0d0d1a;
+      --surface: #13132b;
+      --rose: #e8678a;
+      --rose-light: #f5a0ba;
+      --gold: #f0c27f;
+      --text: #f0eaf8;
+      --muted: #9b93b8;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Inter', sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      padding: 60px 20px 100px;
+      overflow-x: hidden;
+      position: relative;
+    }
+
+    /* Confetti canvas */
+    #confetti { position: fixed; inset: 0; pointer-events: none; z-index: 0; }
+
+    /* Floating hearts */
+    .hearts { position: fixed; inset: 0; pointer-events: none; z-index: 0; }
+    .heart {
+      position: absolute; bottom: -60px;
+      font-size: var(--sz);
+      animation: floatUp var(--dur) ease-in infinite;
+      animation-delay: var(--delay);
+      opacity: 0;
+    }
+    @keyframes floatUp {
+      0%   { transform: translateY(0) rotate(-10deg); opacity: 0; }
+      10%  { opacity: 0.8; }
+      90%  { opacity: 0.3; }
+      100% { transform: translateY(-110vh) rotate(10deg); opacity: 0; }
+    }
+
+    /* ── Page content column ── */
+    .content {
+      position: relative;
+      z-index: 10;
+      max-width: 560px;
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    /* ── Celebration header ── */
+    .celebrate {
+      text-align: center;
+      margin-bottom: 36px;
+      animation: popIn 0.7s cubic-bezier(0.34,1.56,0.64,1) both;
+    }
+    @keyframes popIn {
+      from { opacity: 0; transform: scale(0.6); }
+      to   { opacity: 1; transform: scale(1); }
+    }
+    .celebrate .big-emoji { font-size: 72px; display: block; margin-bottom: 16px; }
+    .celebrate h1 {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(2rem, 6vw, 3rem);
+      font-weight: 600;
+      color: var(--rose-light);
+      line-height: 1.2;
+    }
+    .celebrate p {
+      margin-top: 10px;
+      font-size: 1rem;
+      color: var(--muted);
+      font-style: italic;
+      font-family: 'Playfair Display', serif;
+    }
+
+    /* ── Photo strip rows (inline, between content) ── */
+    .photo-row {
+      width: 100%;
+      display: flex;
+      justify-content: center;
+      gap: 0;          /* gaps come from individual card offsets */
+      align-items: flex-end;
+      margin: 28px 0;
+      position: relative;
+      opacity: 0;
+      transform: translateY(20px);
+      transition: opacity 0.7s ease, transform 0.7s ease;
+    }
+    .photo-row.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* Each polaroid card */
+    .photo-card {
+      background: #fff;
+      padding: 7px 7px 24px 7px;
+      border-radius: 2px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.6), 0 2px 8px rgba(0,0,0,0.3);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      cursor: default;
+      flex-shrink: 0;
+    }
+    .photo-card:hover {
+      box-shadow: 0 18px 52px rgba(0,0,0,0.75), 0 0 0 1.5px rgba(232,103,138,0.4);
+      z-index: 20;
+    }
+    .photo-card img {
+      display: block;
+      object-fit: cover;
+      border-radius: 1px;
+    }
+
+    /* Row of 2 — slightly larger cards, offset so they feel scattered */
+    .photo-row.two .photo-card { width: 190px; height: 230px; }
+    .photo-row.two .photo-card img { width: 100%; height: 100%; }
+    .photo-row.two .photo-card:nth-child(1) { transform: rotate(-5deg) translate(12px, 8px);  }
+    .photo-row.two .photo-card:nth-child(2) { transform: rotate( 4deg) translate(-10px, -4px); }
+    .photo-row.two .photo-card:nth-child(1):hover { transform: rotate(-1deg) scale(1.06) translate(12px, 8px);  }
+    .photo-row.two .photo-card:nth-child(2):hover { transform: rotate( 1deg) scale(1.06) translate(-10px, -4px); }
+
+    /* Row of 2 — variant B (different offsets for mid section) */
+    .photo-row.two-b .photo-card { width: 180px; height: 215px; }
+    .photo-row.two-b .photo-card img { width: 100%; height: 100%; }
+    .photo-row.two-b .photo-card:nth-child(1) { transform: rotate( 6deg) translate(6px,  12px); }
+    .photo-row.two-b .photo-card:nth-child(2) { transform: rotate(-3deg) translate(-8px, -6px); }
+    .photo-row.two-b .photo-card:nth-child(1):hover { transform: rotate( 1deg) scale(1.06) translate(6px, 12px);  }
+    .photo-row.two-b .photo-card:nth-child(2):hover { transform: rotate(-1deg) scale(1.06) translate(-8px, -6px); }
+
+    /* Row of 2 — end section */
+    .photo-row.two-c .photo-card { width: 200px; height: 240px; }
+    .photo-row.two-c .photo-card img { width: 100%; height: 100%; }
+    .photo-row.two-c .photo-card:nth-child(1) { transform: rotate(-7deg) translate(16px,  6px); }
+    .photo-row.two-c .photo-card:nth-child(2) { transform: rotate( 5deg) translate(-14px, 10px); }
+    .photo-row.two-c .photo-card:nth-child(1):hover { transform: rotate(-1deg) scale(1.06) translate(16px, 6px);  }
+    .photo-row.two-c .photo-card:nth-child(2):hover { transform: rotate( 1deg) scale(1.06) translate(-14px, 10px); }
+
+    /* ── Letter sections ── */
+    .letter-section {
+      background: var(--surface);
+      border: 1px solid rgba(232, 103, 138, 0.2);
+      border-radius: 20px;
+      padding: 36px;
+      width: 100%;
+      margin-bottom: 20px;
+      opacity: 0;
+      transform: translateY(32px);
+      transition: opacity 0.7s ease, transform 0.7s ease;
+    }
+    .letter-section.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    .section-label {
+      font-size: 0.72rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--rose);
+      margin-bottom: 14px;
+      font-weight: 500;
+    }
+    .letter-section p {
+      font-size: 1rem;
+      line-height: 1.8;
+      color: #d4cceb;
+      font-weight: 300;
+    }
+    .letter-section p + p { margin-top: 14px; }
+
+    .letter-section.highlight {
+      background: linear-gradient(135deg, #1e1035 0%, #2a1040 100%);
+      border-color: rgba(240, 194, 127, 0.3);
+    }
+    .letter-section.highlight p {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.1rem;
+      font-style: italic;
+      color: var(--gold);
+      text-align: center;
+      line-height: 1.9;
+    }
+
+    /* ── Sign-off ── */
+    .signoff {
+      text-align: center;
+      margin-top: 10px;
+      opacity: 0;
+      transform: translateY(24px);
+      transition: opacity 0.7s ease 0.2s, transform 0.7s ease 0.2s;
+    }
+    .signoff.visible { opacity: 1; transform: translateY(0); }
+    .signoff .heart-icon { font-size: 32px; display: block; margin-bottom: 12px; }
+    .signoff p {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.1rem;
+      font-style: italic;
+      color: var(--rose-light);
+    }
+    .signoff small {
+      display: block;
+      margin-top: 8px;
+      font-size: 0.82rem;
+      color: var(--muted);
+    }
+  </style>
+</head>
+<body>
+
+  <canvas id="confetti"></canvas>
+  <div class="hearts" id="hearts"></div>
+
+  <div class="content">
+
+    <!-- ── Header ── -->
+    <div class="celebrate">
+      <span class="big-emoji">🎄🎉</span>
+      <h1>Kanika said yes!</h1>
+      <p>best pre-christmas gift ever 🎁 (yes, still november, still don't care)</p>
+    </div>
+
+    <!-- ── Photos: 2 before text ── -->
+    <div class="photo-row two">
+      <div class="photo-card"><img src="pic1.jpg" alt="" width="190" height="230"></div>
+      <div class="photo-card"><img src="pic2.jpg" alt="" width="190" height="230"></div>
+    </div>
+
+    <!-- ── Letter sections ── -->
+    <div class="letter-section" data-delay="0">
+      <p class="section-label">What I feel</p>
+      <p>
+        Kanika, I don't know the exact moment it happened — it probably wasn't one moment at all.
+        It was a hundred small ones. The way you talk about things you care about.
+        The way you laugh. The way you make everything around you feel a little warmer.
+      </p>
+      <p>
+        aur honestly — aap jitna pareshaan karte ho mereko, utna hi mujhe accha lagta hai.
+        tease karte ho, irritate karte ho, and somehow that's the part I look forward to the most.
+        in sab cheezon ke beech sochta hoon — yaar ye toh bahut pasand hai mujhe. 😌
+      </p>
+    </div>
+
+    <!-- ── Photos: 2 between text ── -->
+    <div class="photo-row two-b">
+      <div class="photo-card"><img src="pic3.jpg" alt="" width="180" height="215"></div>
+      <div class="photo-card"><img src="pic4.jpg" alt="" width="180" height="215"></div>
+    </div>
+
+    <div class="letter-section highlight" data-delay="0">
+      <p>
+        "You're the kind of person I didn't know I was looking for
+        until you were already my favourite part of the day."
+      </p>
+    </div>
+
+    <div class="letter-section" data-delay="0">
+      <p class="section-label">What I promise</p>
+      <p>
+        I promise to be someone you can count on — to listen when you need it,
+        to make you laugh when you don't, and to show up for you in all the
+        ways that actually matter.
+      </p>
+      <p>
+        aur haan — pareshaan bhi karunga aapko, ye toh pakka hai. 😈
+        tease bhi karunga kyunki aap bhi karte ho na — toh fair hai.
+        but through all of that, I'll always show up. hamesha. 🤙
+      </p>
+    </div>
+
+    <div class="letter-section" data-delay="0">
+      <p class="section-label">Why you</p>
+      <p>
+        Because talking to you never feels like effort. Because you've made
+        ordinary days feel like something worth remembering. 
+        kyunki aap jo ho — waise seriously koi nahi hota.
+        aur jab bhi sochta hoon ki kaun chahiye mere saath —
+        answer hamesha aap hi aate ho. always you. 🌸
+      </p>
+    </div>
+
+    <!-- ── Photos: 2 at the end ── -->
+    <div class="photo-row two-c">
+      <div class="photo-card"><img src="pic5.jpg" alt="" width="200" height="240"></div>
+      <div class="photo-card"><img src="pic6.jpg" alt="" width="200" height="240"></div>
+    </div>
+
+    <!-- ── Sign-off ── -->
+    <div class="signoff" id="signoff">
+      <span class="heart-icon">💕</span>
+      <p>Yours, completely. <br><small style="font-style:normal;font-size:0.9rem;">(pareshaan karta rahunga aapko, ye mat bhulna 😇)</small></p>
+      <small>— written with a lot of feelings and zero chill</small>
+    </div>
+
+  </div>
+
+  <script>
+    // ── Confetti ──
+    const canvas = document.getElementById('confetti');
+    const ctx = canvas.getContext('2d');
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+    window.addEventListener('resize', () => {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    });
+
+    const COLORS = ['#e8678a','#f5a0ba','#f0c27f','#c084fc','#a5f3fc','#ffffff'];
+    const pieces = Array.from({ length: 160 }, () => ({
+      x: Math.random() * canvas.width,
+      y: Math.random() * -canvas.height,
+      w: Math.random() * 10 + 5,
+      h: Math.random() * 5 + 3,
+      color: COLORS[Math.floor(Math.random() * COLORS.length)],
+      vx: (Math.random() - 0.5) * 2,
+      vy: Math.random() * 3 + 1.5,
+      angle: Math.random() * Math.PI * 2,
+      va: (Math.random() - 0.5) * 0.15,
+      alpha: Math.random() * 0.5 + 0.5,
+    }));
+
+    let running = true;
+    function drawConfetti() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      pieces.forEach(p => {
+        p.x += p.vx; p.y += p.vy; p.angle += p.va;
+        if (p.y > canvas.height + 20) { p.y = -20; p.x = Math.random() * canvas.width; }
+        ctx.save();
+        ctx.globalAlpha = p.alpha;
+        ctx.translate(p.x, p.y);
+        ctx.rotate(p.angle);
+        ctx.fillStyle = p.color;
+        ctx.fillRect(-p.w/2, -p.h/2, p.w, p.h);
+        ctx.restore();
+      });
+      if (running) requestAnimationFrame(drawConfetti);
+    }
+    drawConfetti();
+    setTimeout(() => { running = false; }, 6000);
+
+    // ── Floating hearts ──
+    const heartsEl = document.getElementById('hearts');
+    const hSymbols = ['💗','💖','💕','🌸','✨','💓','🌷','💘'];
+    for (let i = 0; i < 22; i++) {
+      const h = document.createElement('div');
+      h.className = 'heart';
+      h.textContent = hSymbols[Math.floor(Math.random() * hSymbols.length)];
+      h.style.cssText = `left:${Math.random()*100}%;--sz:${(Math.random()*20+10).toFixed(0)}px;--dur:${(Math.random()*7+6).toFixed(1)}s;--delay:${(Math.random()*8).toFixed(1)}s;`;
+      heartsEl.appendChild(h);
+    }
+
+    // ── Scroll reveal with stagger ──
+    const revealEls = document.querySelectorAll('.letter-section, .photo-row, .signoff');
+    const observer = new IntersectionObserver(entries => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          // Small extra delay so elements that enter together cascade
+          const idx = [...revealEls].indexOf(entry.target);
+          setTimeout(() => entry.target.classList.add('visible'), idx * 60);
+          observer.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.1 });
+
+    revealEls.forEach(el => observer.observe(el));
+  </script>
+</body>
+</html>
